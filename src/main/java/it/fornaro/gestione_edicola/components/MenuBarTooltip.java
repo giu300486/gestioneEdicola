@@ -13,8 +13,6 @@ public class MenuBarTooltip extends Composite<Component> {
     protected Component initContent() {
         MenuBar menuBar = new MenuBar();
 
-        StreamResource chiudiStreamResource = new StreamResource("chiudi",
-                () -> getClass().getResourceAsStream("/static/chiudi.gif"));
         StreamResource nuovaRivistaStreamResource = new StreamResource("nuovaRivista",
                 () -> getClass().getResourceAsStream("/static/nuovaRivista.gif"));
         StreamResource modificaRivistaStreamResource = new StreamResource("modificaRivista",
@@ -24,7 +22,6 @@ public class MenuBarTooltip extends Composite<Component> {
         StreamResource archivioRivisteStreamResource = new StreamResource("archivioRiviste",
                 () -> getClass().getResourceAsStream("/static/archivioRiviste.gif"));
 
-        createIconItem(menuBar, new Image(chiudiStreamResource, ""), "Chiudi");
         createIconItem(menuBar, new Image(nuovaRivistaStreamResource, ""), "Nuova Rivista");
         createIconItem(menuBar, new Image(modificaRivistaStreamResource, ""), "Modifica Rivista");
         createIconItem(menuBar, new Image(eliminaRivistaStreamResource, ""), "Elimina Rivista");
