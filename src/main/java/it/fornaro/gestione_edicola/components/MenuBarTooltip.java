@@ -1,13 +1,28 @@
 package it.fornaro.gestione_edicola.components;
 
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.server.StreamResource;
+import it.fornaro.gestione_edicola.model.Rivista;
+import it.fornaro.gestione_edicola.views.AnagraficaRiviste;
 
 public class MenuBarTooltip extends Composite<Component> {
+
+    private static final String NUOVA_RIVISTA = "Nuova Rivista";
+    private static final String MODIFICA_RIVISTA = "Modifica Rivista";
+    private static final String ELIMINA_RIVISTA = "Elimina Rivista";
+    private static final String ARCHIVIO = "Archivio";
+
+    private AnagraficaRiviste anagraficaRiviste;
+
+    public MenuBarTooltip(AnagraficaRiviste anagraficaRiviste) {
+        this.anagraficaRiviste = anagraficaRiviste;
+    }
 
     @Override
     protected Component initContent() {
@@ -22,17 +37,57 @@ public class MenuBarTooltip extends Composite<Component> {
         StreamResource archivioRivisteStreamResource = new StreamResource("archivioRiviste",
                 () -> getClass().getResourceAsStream("/static/archivioRiviste.gif"));
 
-        createIconItem(menuBar, new Image(nuovaRivistaStreamResource, ""), "Nuova Rivista");
-        createIconItem(menuBar, new Image(modificaRivistaStreamResource, ""), "Modifica Rivista");
-        createIconItem(menuBar, new Image(eliminaRivistaStreamResource, ""), "Elimina Rivista");
-        createIconItem(menuBar, new Image(archivioRivisteStreamResource, ""), "Archivio");
+        createMenuItem(menuBar, new Image(nuovaRivistaStreamResource, ""), NUOVA_RIVISTA);
+        createMenuItem(menuBar, new Image(modificaRivistaStreamResource, ""), MODIFICA_RIVISTA);
+        createMenuItem(menuBar, new Image(eliminaRivistaStreamResource, ""), ELIMINA_RIVISTA);
+        createMenuItem(menuBar, new Image(archivioRivisteStreamResource, ""), ARCHIVIO);
 
         return menuBar;
     }
 
-    private MenuItem createIconItem(MenuBar menu, Image image,
+    private MenuItem createMenuItem(MenuBar menu, Image image,
                                     String tooltipText) {
         MenuItem item = menu.addItem(image, tooltipText);
+
+        switch (tooltipText) {
+            case NUOVA_RIVISTA : {
+                item.addClickListener(new ComponentEventListener<ClickEvent<MenuItem>>() {
+                    @Override
+                    public void onComponentEvent(ClickEvent<MenuItem> event) {
+                        MenuBarTooltip.this.anagraficaRiviste.enableField(true);
+                    }
+                });
+                break;
+            }
+            case MODIFICA_RIVISTA : {
+                item.addClickListener(new ComponentEventListener<ClickEvent<MenuItem>>() {
+                    @Override
+                    public void onComponentEvent(ClickEvent<MenuItem> event) {
+
+                    }
+                });
+                break;
+            }
+            case ELIMINA_RIVISTA : {
+                item.addClickListener(new ComponentEventListener<ClickEvent<MenuItem>>() {
+                    @Override
+                    public void onComponentEvent(ClickEvent<MenuItem> event) {
+
+                    }
+                });
+                break;
+            }
+            case ARCHIVIO : {
+                item.addClickListener(new ComponentEventListener<ClickEvent<MenuItem>>() {
+                    @Override
+                    public void onComponentEvent(ClickEvent<MenuItem> event) {
+
+                    }
+                });
+                break;
+            }
+        }
+
         return item;
     }
 }

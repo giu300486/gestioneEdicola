@@ -1,10 +1,10 @@
 package it.fornaro.gestione_edicola.views;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -12,8 +12,20 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.*;
+import com.vaadin.flow.data.validator.EmailValidator;
+import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.server.StreamResource;
 import it.fornaro.gestione_edicola.components.MenuBarTooltip;
+import it.fornaro.gestione_edicola.model.Periodo;
+import it.fornaro.gestione_edicola.model.Rivista;
+import it.fornaro.gestione_edicola.views.dialogs.DialogGestioneEdicola;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AnagraficaRiviste extends Composite<Component> {
 
@@ -23,19 +35,69 @@ public class AnagraficaRiviste extends Composite<Component> {
     private VerticalLayout centralContainer;
     private HorizontalLayout southContainer;
 
+    private TextField textFieldBarCode;
+    private TextField textFieldDescrizione;
+    private NumberField numberFieldPrezzo;
+    private ComboBox<Periodo> comboBoxPeriodo;
+    private Button conferma;
+    private Button annulla;
+
+    private Binder<Rivista> binder;
+
+    private Rivista rivista;
+
+    public AnagraficaRiviste(Rivista rivista) {
+        this.textFieldBarCode = new TextField();
+        this.textFieldDescrizione = new TextField();
+        this.numberFieldPrezzo = new NumberField();
+        this.comboBoxPeriodo = new ComboBox<>();
+
+        this.textFieldBarCode.setEnabled(false);
+        this.textFieldDescrizione.setEnabled(false);
+
+
+        this.numberFieldPrezzo.setHasControls(true);
+        this.numberFieldPrezzo.setMin(0.0);
+        this.numberFieldPrezzo.setMax(5.0);
+        this.numberFieldPrezzo.setStep(0.5);
+        this.numberFieldPrezzo.setClearButtonVisible(true);
+        this.numberFieldPrezzo.setHelperText("From 0.0 to 5.0");
+        this.numberFieldPrezzo.setEnabled(false);
+
+        this.comboBoxPeriodo.setItems(Periodo.values());
+        this.comboBoxPeriodo.setEnabled(false);
+
+        this.binder = new Binder<>();
+        binder.forField(this.textFieldBarCode)
+                .withValidator(new RegexpValidator("Inserire un corretto bar code", "^(\\d{13})$"))
+                .bind(Rivista::getBarcode, Rivista::setBarcode);
+        binder.forField(this.textFieldDescrizione)
+                .asRequired("Inserire il nome della rivista")
+                .bind(Rivista::getDescrizione, Rivista::setDescrizione);
+        binder.forField(this.numberFieldPrezzo)
+                .asRequired("Inserire il prezzo")
+                .bind(Rivista::getPrezzo, Rivista::setPrezzo);
+        binder.forField(this.comboBoxPeriodo)
+                .asRequired("Inserire il periodo")
+                .bind(Rivista::getPeriodo, Rivista::setPeriodo);
+        binder.setBean(rivista);
+    }
+
     @Override
     protected Component initContent() {
         this.container = new VerticalLayout();
 
         this.northContainer = new HorizontalLayout();
-        this.menuBarTooltip = new MenuBarTooltip();
+
+        this.menuBarTooltip = new MenuBarTooltip(this);
+
+
         this.northContainer.add(this.menuBarTooltip);
         this.northContainer.setMinWidth(50,Unit.PERCENTAGE);
 
         this.centralContainer = new VerticalLayout();
         HorizontalLayout horizontalLayoutBarCode = new HorizontalLayout();
         Label labelBarCode = new Label("Barcode");
-        TextField textFieldBarCode = new TextField();
         horizontalLayoutBarCode.add(labelBarCode,textFieldBarCode);
         horizontalLayoutBarCode.setMinWidth(50,Unit.PERCENTAGE);
         horizontalLayoutBarCode.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
@@ -44,7 +106,6 @@ public class AnagraficaRiviste extends Composite<Component> {
 
         HorizontalLayout horizontalLayoutDescrizione = new HorizontalLayout();
         Label labelDescrizione = new Label("Descrizione");
-        TextField textFieldDescrizione = new TextField();
         horizontalLayoutDescrizione.add(labelDescrizione,textFieldDescrizione);
         horizontalLayoutDescrizione.setMinWidth(50,Unit.PERCENTAGE);
         horizontalLayoutDescrizione.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
@@ -53,13 +114,6 @@ public class AnagraficaRiviste extends Composite<Component> {
 
         HorizontalLayout horizontalLayoutPrezzo = new HorizontalLayout();
         Label labelPrezzo = new Label("Prezzo");
-        NumberField numberFieldPrezzo = new NumberField();
-        numberFieldPrezzo.setHasControls(true);
-        numberFieldPrezzo.setMin(0.0);
-        numberFieldPrezzo.setMax(5.0);
-        numberFieldPrezzo.setStep(0.5);
-        numberFieldPrezzo.setClearButtonVisible(true);
-        numberFieldPrezzo.setHelperText("From 0.0 to 5.0");
         horizontalLayoutPrezzo.add(labelPrezzo,numberFieldPrezzo);
         horizontalLayoutPrezzo.setMinWidth(50,Unit.PERCENTAGE);
         horizontalLayoutPrezzo.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
@@ -68,8 +122,6 @@ public class AnagraficaRiviste extends Composite<Component> {
 
         HorizontalLayout horizontalLayoutPeriodo = new HorizontalLayout();
         Label labelPeriodo = new Label("Periodo");
-        ComboBox<String> comboBoxPeriodo = new ComboBox<>();
-        comboBoxPeriodo.setItems("Giornaliero","Settimanale","Mensile","Trimestrale","Semestrale","Annuale");
         horizontalLayoutPeriodo.add(labelPeriodo,comboBoxPeriodo);
         horizontalLayoutPeriodo.setMinWidth(50,Unit.PERCENTAGE);
         horizontalLayoutPeriodo.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
@@ -83,10 +135,33 @@ public class AnagraficaRiviste extends Composite<Component> {
         StreamResource annullaStreamResource = new StreamResource("annulla",
                 () -> getClass().getResourceAsStream("/static/annulla.gif"));
 
-        Button conferma = new Button(new Image(confermaStreamResource, "Conferma"));
-        Button annulla = new Button(new Image(annullaStreamResource, "Annulla"));
-        conferma.setEnabled(false);
-        annulla.setEnabled(false);
+        this.conferma = new Button(new Image(confermaStreamResource, "Conferma"));
+        this.annulla = new Button(new Image(annullaStreamResource, "Annulla"));
+        this.conferma.setEnabled(false);
+        this.annulla.setEnabled(false);
+
+        this.conferma.addClickListener(new ComponentEventListener<ClickEvent<Button>>() {
+            @Override
+            public void onComponentEvent(ClickEvent<Button> event) {
+                AnagraficaRiviste.this.binder.validate();
+                if(!AnagraficaRiviste.this.binder.isValid()) {
+                    DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Per favore sistemare gli errori");
+                    dialogGestioneEdicola.open();
+                }
+                /*String barcode = AnagraficaRiviste.this.textFieldBarCode.getValue();
+                if(StringUtils.isBlank(barcode)) {
+                    DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Inserire il barCode");
+                    dialogGestioneEdicola.open();
+                }*/
+            }
+        });
+
+        this.annulla.addClickListener(new ComponentEventListener<ClickEvent<Button>>() {
+            @Override
+            public void onComponentEvent(ClickEvent<Button> event) {
+                AnagraficaRiviste.this.enableField(false);
+            }
+        });
 
         this.southContainer.add(conferma,annulla);
         this.southContainer.setMinWidth(50,Unit.PERCENTAGE);
@@ -95,5 +170,14 @@ public class AnagraficaRiviste extends Composite<Component> {
         this.container.add(this.northContainer,this.centralContainer,this.southContainer);
 
         return this.container;
+    }
+
+    public void enableField(boolean enable) {
+        this.textFieldBarCode.setEnabled(enable);
+        this.textFieldDescrizione.setEnabled(enable);
+        this.numberFieldPrezzo.setEnabled(enable);
+        this.comboBoxPeriodo.setEnabled(enable);
+        this.conferma.setEnabled(enable);
+        this.annulla.setEnabled(enable);
     }
 }

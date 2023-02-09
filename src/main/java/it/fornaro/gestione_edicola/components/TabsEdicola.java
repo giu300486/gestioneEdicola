@@ -11,6 +11,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.server.StreamResource;
+import it.fornaro.gestione_edicola.model.Periodo;
+import it.fornaro.gestione_edicola.model.Rivista;
 import it.fornaro.gestione_edicola.views.AnagraficaRiviste;
 
 public class TabsEdicola extends Composite<Component> {
@@ -79,7 +81,7 @@ public class TabsEdicola extends Composite<Component> {
     }
 
     private Component buildArchivioTab() {
-        AnagraficaRiviste anagraficaRiviste = new AnagraficaRiviste();
+        AnagraficaRiviste anagraficaRiviste = new AnagraficaRiviste(new Rivista());
         return anagraficaRiviste.getContent();
     }
 
