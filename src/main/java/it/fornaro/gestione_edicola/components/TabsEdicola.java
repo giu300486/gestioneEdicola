@@ -11,8 +11,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.server.StreamResource;
-import it.fornaro.gestione_edicola.model.Periodo;
 import it.fornaro.gestione_edicola.model.Rivista;
+import it.fornaro.gestione_edicola.service.RivistaService;
 import it.fornaro.gestione_edicola.views.AnagraficaRiviste;
 
 public class TabsEdicola extends Composite<Component> {
@@ -23,6 +23,12 @@ public class TabsEdicola extends Composite<Component> {
     private Tab carico;
     private Tab resi;
     private Tab scarico;
+
+    private final RivistaService rivistaService;
+
+    public TabsEdicola(RivistaService rivistaService) {
+        this.rivistaService = rivistaService;
+    }
 
     @Override
     protected Component initContent() {
@@ -81,7 +87,7 @@ public class TabsEdicola extends Composite<Component> {
     }
 
     private Component buildArchivioTab() {
-        AnagraficaRiviste anagraficaRiviste = new AnagraficaRiviste(new Rivista());
+        AnagraficaRiviste anagraficaRiviste = new AnagraficaRiviste(new Rivista(), this.rivistaService);
         return anagraficaRiviste.getContent();
     }
 

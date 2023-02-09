@@ -4,8 +4,15 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.menubar.MenuBar;
+import it.fornaro.gestione_edicola.service.RivistaService;
 
 public class MenuEdicola extends Composite<Component> {
+
+    private final RivistaService rivistaService;
+
+    public MenuEdicola(RivistaService rivistaService) {
+        this.rivistaService = rivistaService;
+    }
 
     @Override
     protected Component initContent() {

@@ -1,0 +1,1 @@
+CREATE sequence sequence_gestione_edicola start WITH 1 incrementby 1;
