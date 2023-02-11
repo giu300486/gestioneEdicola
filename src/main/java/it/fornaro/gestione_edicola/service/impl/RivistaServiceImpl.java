@@ -20,8 +20,10 @@ public class RivistaServiceImpl implements RivistaService {
     }
 
     @Override
-    public boolean salva(Rivista rivista) {
+    public Rivista salva(Rivista rivista) {
+        Rivista rivistaFound = this.rivistaRepository.findByBarCode(rivista.getBarCode());
+        if(!Objects.isNull(rivistaFound)) return new Rivista();
         rivista.setDataCreazione(new Date());
-        return !Objects.isNull(this.rivistaRepository.saveAndFlush(rivista));
+        return this.rivistaRepository.save(rivista);
     }
 }

@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RivistaRepository extends JpaRepository<Rivista, Long> {
+    Rivista findByBarCode(String barCode);
 }

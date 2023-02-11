@@ -4,6 +4,6 @@ import it.fornaro.gestione_edicola.model.Rivista;
 
 public interface RivistaService {
 
-    boolean salva(Rivista rivista);
+    Rivista salva(Rivista rivista);
 
 }

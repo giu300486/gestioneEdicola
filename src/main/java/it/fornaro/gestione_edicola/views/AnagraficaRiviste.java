@@ -18,7 +18,10 @@ import it.fornaro.gestione_edicola.model.Periodo;
 import it.fornaro.gestione_edicola.model.Rivista;
 import it.fornaro.gestione_edicola.service.RivistaService;
 import it.fornaro.gestione_edicola.views.dialogs.DialogGestioneEdicola;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Objects;
 
 public class AnagraficaRiviste extends Composite<Component> {
 
@@ -144,11 +147,18 @@ public class AnagraficaRiviste extends Composite<Component> {
                     dialogGestioneEdicola.open();
                 }
                 else {
-                    if(AnagraficaRiviste.this.rivistaService.salva(AnagraficaRiviste.this.binder.getBean())) {
-                        DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Rivista " + binder.getBean().getDescrizione() + " salvata con successo");
-                        dialogGestioneEdicola.open();
-                    }
-                    else {
+                    try {
+                        Rivista rivistaSaved = AnagraficaRiviste.this.rivistaService.salva(AnagraficaRiviste.this.binder.getBean());
+                        if (!Objects.isNull(rivistaSaved) && StringUtils.isNotBlank(rivistaSaved.getBarCode())) {
+                            DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Rivista " + binder.getBean().getDescrizione() + " salvata con successo");
+                            dialogGestioneEdicola.open();
+                        } else {
+                            if (!Objects.isNull(rivistaSaved)) {
+                                DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Errore nel salvare la rivista " + binder.getBean().getDescrizione() + ". Bar code duplicato");
+                                dialogGestioneEdicola.open();
+                            }
+                        }
+                    } catch (Exception e) {
                         DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Errore nel salvare la rivista " + binder.getBean().getDescrizione());
                         dialogGestioneEdicola.open();
                     }
