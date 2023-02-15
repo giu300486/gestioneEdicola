@@ -8,8 +8,6 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.server.StreamResource;
-import it.fornaro.gestione_edicola.model.Rivista;
-import it.fornaro.gestione_edicola.views.AnagraficaRiviste;
 
 public class MenuBarTooltip extends Composite<Component> {
 
@@ -18,10 +16,10 @@ public class MenuBarTooltip extends Composite<Component> {
     private static final String ELIMINA_RIVISTA = "Elimina Rivista";
     private static final String ARCHIVIO = "Archivio";
 
-    private AnagraficaRiviste anagraficaRiviste;
+    private TabsEdicola tabsEdicola;
 
-    public MenuBarTooltip(AnagraficaRiviste anagraficaRiviste) {
-        this.anagraficaRiviste = anagraficaRiviste;
+    public MenuBarTooltip(TabsEdicola tabsEdicola) {
+        this.tabsEdicola = tabsEdicola;
     }
 
     @Override
@@ -54,7 +52,8 @@ public class MenuBarTooltip extends Composite<Component> {
                 item.addClickListener(new ComponentEventListener<ClickEvent<MenuItem>>() {
                     @Override
                     public void onComponentEvent(ClickEvent<MenuItem> event) {
-                        MenuBarTooltip.this.anagraficaRiviste.enableField(true);
+
+                        MenuBarTooltip.this.tabsEdicola.setContent(tabsEdicola.getArchivio(),1);
                     }
                 });
                 break;
@@ -82,6 +81,7 @@ public class MenuBarTooltip extends Composite<Component> {
                     @Override
                     public void onComponentEvent(ClickEvent<MenuItem> event) {
 
+                        MenuBarTooltip.this.tabsEdicola.setContent(tabsEdicola.getArchivio(),2);
                     }
                 });
                 break;

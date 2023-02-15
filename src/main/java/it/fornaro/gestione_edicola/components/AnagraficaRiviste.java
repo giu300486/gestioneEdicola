@@ -1,4 +1,4 @@
-package it.fornaro.gestione_edicola.views;
+package it.fornaro.gestione_edicola.components;
 
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
@@ -13,21 +13,16 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.*;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.server.StreamResource;
-import it.fornaro.gestione_edicola.components.MenuBarTooltip;
 import it.fornaro.gestione_edicola.model.Periodo;
 import it.fornaro.gestione_edicola.model.Rivista;
 import it.fornaro.gestione_edicola.service.RivistaService;
 import it.fornaro.gestione_edicola.views.dialogs.DialogGestioneEdicola;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Objects;
 
-public class AnagraficaRiviste extends Composite<Component> {
+public class AnagraficaRiviste extends ContainerTabArchivio {
 
-    private MenuBarTooltip menuBarTooltip;
-    private VerticalLayout container;
-    private HorizontalLayout northContainer;
+    private ContainerMenuToolTipTabArchivio northContainer;
     private VerticalLayout centralContainer;
     private HorizontalLayout southContainer;
 
@@ -40,10 +35,8 @@ public class AnagraficaRiviste extends Composite<Component> {
 
     private Binder<Rivista> binder;
 
-    private final RivistaService rivistaService;
-
-    public AnagraficaRiviste(Rivista rivista, RivistaService rivistaService) {
-        this.rivistaService = rivistaService;
+    public AnagraficaRiviste(Rivista rivista, RivistaService rivistaService, TabsEdicola tabsEdicola) {
+        super(tabsEdicola,rivistaService);
 
         this.textFieldBarCode = new TextField();
         this.textFieldDescrizione = new TextField();
@@ -83,15 +76,9 @@ public class AnagraficaRiviste extends Composite<Component> {
 
     @Override
     protected Component initContent() {
-        this.container = new VerticalLayout();
 
-        this.northContainer = new HorizontalLayout();
-
-        this.menuBarTooltip = new MenuBarTooltip(this);
-
-
-        this.northContainer.add(this.menuBarTooltip);
-        this.northContainer.setMinWidth(50,Unit.PERCENTAGE);
+        this.northContainer = new ContainerMenuToolTipTabArchivio(tabsEdicola);
+        this.northContainer.getContent();
 
         this.centralContainer = new VerticalLayout();
         HorizontalLayout horizontalLayoutBarCode = new HorizontalLayout();
@@ -179,6 +166,12 @@ public class AnagraficaRiviste extends Composite<Component> {
 
         this.container.add(this.northContainer,this.centralContainer,this.southContainer);
 
+        return this.container;
+    }
+
+    @Override
+    public Component buildContent() {
+        this.enableField(true);
         return this.container;
     }
 

@@ -13,7 +13,6 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.server.StreamResource;
 import it.fornaro.gestione_edicola.model.Rivista;
 import it.fornaro.gestione_edicola.service.RivistaService;
-import it.fornaro.gestione_edicola.views.AnagraficaRiviste;
 
 public class TabsEdicola extends Composite<Component> {
 
@@ -52,7 +51,7 @@ public class TabsEdicola extends Composite<Component> {
         tabs.setWidthFull();
         tabs.setFlexGrowForEnclosedTabs(1);
 
-        setContent(tabs.getSelectedTab());
+        setContent(tabs.getSelectedTab(),1);
 
         Div div = new Div();
         div.setWidthFull();
@@ -62,18 +61,34 @@ public class TabsEdicola extends Composite<Component> {
             @Override
             public void onComponentEvent(Tabs.SelectedChangeEvent event) {
                 Tab selected = event.getSelectedTab();
-                setContent(selected);
+                setContent(selected,1);
             }
         });
 
         return div;
     }
 
-    private void setContent(Tab selected) {
+    public Tab getArchivio() {
+        return archivio;
+    }
+
+    public Tab getCarico() {
+        return carico;
+    }
+
+    public Tab getResi() {
+        return resi;
+    }
+
+    public Tab getScarico() {
+        return scarico;
+    }
+
+    public void setContent(Tab selected, int content) {
         tabsContainer.removeAll();
 
         if(archivio.equals(selected)) {
-            tabsContainer.add(buildArchivioTab());
+            tabsContainer.add(buildArchivioTab(content));
         }
         else if(carico.equals(selected)) {
             tabsContainer.add(buildCaricoTab());
@@ -86,9 +101,22 @@ public class TabsEdicola extends Composite<Component> {
         }
     }
 
-    private Component buildArchivioTab() {
-        AnagraficaRiviste anagraficaRiviste = new AnagraficaRiviste(new Rivista(), this.rivistaService);
-        return anagraficaRiviste.getContent();
+    private Component buildArchivioTab(int content) {
+        switch (content) {
+            case 1: {
+                ContainerTabArchivio anagraficaRiviste = new AnagraficaRiviste(new Rivista(), this.rivistaService,this);
+                anagraficaRiviste.getContent();
+                return anagraficaRiviste.buildContent();
+            }
+            case 2: {
+                ContainerTabArchivio tabellaRivista = new TabellaRivista(this.rivistaService, this);
+                tabellaRivista.getContent();
+                return tabellaRivista.buildContent();
+            }
+            default: {
+                return null;
+            }
+        }
     }
 
     private Component buildCaricoTab() {
