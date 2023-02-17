@@ -17,7 +17,6 @@ import it.fornaro.gestione_edicola.model.Periodo;
 import it.fornaro.gestione_edicola.model.Rivista;
 import it.fornaro.gestione_edicola.service.RivistaService;
 import it.fornaro.gestione_edicola.views.dialogs.DialogGestioneEdicola;
-import org.apache.commons.lang3.StringUtils;
 import java.util.Objects;
 
 public class AnagraficaRiviste extends ContainerTabArchivio {
@@ -34,6 +33,7 @@ public class AnagraficaRiviste extends ContainerTabArchivio {
     private Button annulla;
 
     private Binder<Rivista> binder;
+    private Binder<Rivista> binderBarcode;
 
     public AnagraficaRiviste(Rivista rivista, RivistaService rivistaService, TabsEdicola tabsEdicola) {
         super(tabsEdicola,rivistaService);
@@ -72,6 +72,12 @@ public class AnagraficaRiviste extends ContainerTabArchivio {
                 .asRequired("Inserire il periodo")
                 .bind(Rivista::getPeriodo, Rivista::setPeriodo);
         binder.setBean(rivista);
+
+        this.binderBarcode = new Binder<>();
+        binderBarcode.forField(this.textFieldBarCode)
+                .withValidator(new RegexpValidator("Inserire un corretto bar code", "^(\\d{13})$"))
+                .bind(Rivista::getBarCode, Rivista::setBarCode);
+
     }
 
     @Override
@@ -134,20 +140,20 @@ public class AnagraficaRiviste extends ContainerTabArchivio {
                     dialogGestioneEdicola.open();
                 }
                 else {
-                    try {
-                        Rivista rivistaSaved = AnagraficaRiviste.this.rivistaService.salva(AnagraficaRiviste.this.binder.getBean());
-                        if (!Objects.isNull(rivistaSaved) && StringUtils.isNotBlank(rivistaSaved.getBarCode())) {
-                            DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Rivista " + binder.getBean().getDescrizione() + " salvata con successo");
-                            dialogGestioneEdicola.open();
-                        } else {
+                    if(TabsEdicola.STATE == 1) {
+                        try {
+                            Rivista rivistaSaved = AnagraficaRiviste.this.rivistaService.salva(AnagraficaRiviste.this.binder.getBean());
                             if (!Objects.isNull(rivistaSaved)) {
+                                DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Rivista " + binder.getBean().getDescrizione() + " salvata con successo");
+                                dialogGestioneEdicola.open();
+                            } else {
                                 DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Errore nel salvare la rivista " + binder.getBean().getDescrizione() + ". Bar code duplicato");
                                 dialogGestioneEdicola.open();
                             }
+                        } catch (Exception e) {
+                            DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Errore nel salvare la rivista " + binder.getBean().getDescrizione());
+                            dialogGestioneEdicola.open();
                         }
-                    } catch (Exception e) {
-                        DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Errore nel salvare la rivista " + binder.getBean().getDescrizione());
-                        dialogGestioneEdicola.open();
                     }
                 }
             }
@@ -156,6 +162,10 @@ public class AnagraficaRiviste extends ContainerTabArchivio {
         this.annulla.addClickListener(new ComponentEventListener<ClickEvent<Button>>() {
             @Override
             public void onComponentEvent(ClickEvent<Button> event) {
+                AnagraficaRiviste.this.textFieldBarCode.clear();
+                AnagraficaRiviste.this.textFieldDescrizione.clear();
+                AnagraficaRiviste.this.numberFieldPrezzo.clear();
+                AnagraficaRiviste.this.comboBoxPeriodo.clear();
                 AnagraficaRiviste.this.enableField(false);
             }
         });
@@ -176,15 +186,43 @@ public class AnagraficaRiviste extends ContainerTabArchivio {
     }
 
     public void enableField(boolean enable) {
-        this.textFieldBarCode.clear();
-        this.textFieldDescrizione.clear();
-        this.numberFieldPrezzo.clear();
-        this.comboBoxPeriodo.clear();
         this.textFieldBarCode.setEnabled(enable);
         this.textFieldDescrizione.setEnabled(enable);
         this.numberFieldPrezzo.setEnabled(enable);
         this.comboBoxPeriodo.setEnabled(enable);
         this.conferma.setEnabled(enable);
         this.annulla.setEnabled(enable);
+    }
+
+    public TextField getTextFieldBarCode() {
+        return textFieldBarCode;
+    }
+
+    public TextField getTextFieldDescrizione() {
+        return textFieldDescrizione;
+    }
+
+    public NumberField getNumberFieldPrezzo() {
+        return numberFieldPrezzo;
+    }
+
+    public ComboBox<Periodo> getComboBoxPeriodo() {
+        return comboBoxPeriodo;
+    }
+
+    public Button getConferma() {
+        return conferma;
+    }
+
+    public Button getAnnulla() {
+        return annulla;
+    }
+
+    public Binder<Rivista> getBinder() {
+        return binder;
+    }
+
+    public Binder<Rivista> getBinderBarcode() {
+        return binderBarcode;
     }
 }

@@ -22,9 +22,15 @@ public class RivistaServiceImpl implements RivistaService {
 
     @Override
     public Rivista salva(Rivista rivista) {
-        Rivista rivistaFound = this.rivistaRepository.findByBarCode(rivista.getBarCode());
-        if(!Objects.isNull(rivistaFound)) return new Rivista();
-        rivista.setDataCreazione(new Date());
+        Rivista rivistaFound = this.rivistaRepository.findByIdRivista(rivista.getIdRivista());
+        if(Objects.isNull(rivistaFound)) {
+            rivistaFound = this.rivistaRepository.findByBarCode(rivista.getBarCode());
+            if(!Objects.isNull(rivistaFound)) return null;
+            rivista.setDataCreazione(new Date());
+        }
+        else {
+            rivista.setDataAggiornamento(new Date());
+        }
         return this.rivistaRepository.save(rivista);
     }
 
@@ -33,5 +39,13 @@ public class RivistaServiceImpl implements RivistaService {
         return this.rivistaRepository.findAll();
     }
 
+    @Override
+    public Rivista findByBarcode(String barcode) {
+        return this.rivistaRepository.findByBarCode(barcode);
+    }
 
+    @Override
+    public void delete(Rivista rivista) {
+        this.rivistaRepository.delete(rivista);
+    }
 }

@@ -5,6 +5,7 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import it.fornaro.gestione_edicola.model.Rivista;
 
 public class ContainerMenuToolTipTabArchivio extends Composite<Component> {
 
@@ -31,5 +32,9 @@ public class ContainerMenuToolTipTabArchivio extends Composite<Component> {
         this.container.add(this.northContainer);
 
         return this.container;
+    }
+
+    public void setRivistaToMenuBarToolTip(Rivista rivista) {
+        this.menuBarTooltip.setRivista(rivista);
     }
 }

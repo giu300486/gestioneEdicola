@@ -8,5 +8,7 @@ public interface RivistaService {
 
     Rivista salva(Rivista rivista);
     List<Rivista> findAll();
+    Rivista findByBarcode(String barcode);
+    void delete(Rivista rivista);
 
 }

@@ -6,12 +6,13 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.selection.SelectionEvent;
+import com.vaadin.flow.data.selection.SelectionListener;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import it.fornaro.gestione_edicola.model.Rivista;
 import it.fornaro.gestione_edicola.service.RivistaService;
 
 import java.util.List;
-import java.util.TreeSet;
 
 public class TabellaRivista extends ContainerTabArchivio {
 
@@ -32,6 +33,15 @@ public class TabellaRivista extends ContainerTabArchivio {
         this.grid.addColumn(Rivista::getDescrizione).setSortable(true).setHeader("Nome").setAutoWidth(true);
         this.grid.addColumn(Rivista::getPrezzo).setSortable(true).setHeader("Prezzo").setAutoWidth(true);
         this.grid.addColumn(Rivista::getPeriodo).setSortable(true).setHeader("Periodo").setAutoWidth(true);
+
+        this.grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+        this.grid.addSelectionListener(new SelectionListener<Grid<Rivista>, Rivista>() {
+            @Override
+            public void selectionChange(SelectionEvent<Grid<Rivista>, Rivista> event) {
+                Rivista rivistaSelected = grid.asSingleSelect().getValue();
+                northContainer.setRivistaToMenuBarToolTip(rivistaSelected);
+            }
+        });
 
         List<Rivista> riviste = this.rivistaService.findAll();
 

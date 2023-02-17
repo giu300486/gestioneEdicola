@@ -8,6 +8,10 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.server.StreamResource;
+import it.fornaro.gestione_edicola.model.Rivista;
+import it.fornaro.gestione_edicola.views.dialogs.DialogGestioneEdicola;
+
+import java.util.Objects;
 
 public class MenuBarTooltip extends Composite<Component> {
 
@@ -17,6 +21,7 @@ public class MenuBarTooltip extends Composite<Component> {
     private static final String ARCHIVIO = "Archivio";
 
     private TabsEdicola tabsEdicola;
+    private Rivista rivista;
 
     public MenuBarTooltip(TabsEdicola tabsEdicola) {
         this.tabsEdicola = tabsEdicola;
@@ -52,8 +57,8 @@ public class MenuBarTooltip extends Composite<Component> {
                 item.addClickListener(new ComponentEventListener<ClickEvent<MenuItem>>() {
                     @Override
                     public void onComponentEvent(ClickEvent<MenuItem> event) {
-
-                        MenuBarTooltip.this.tabsEdicola.setContent(tabsEdicola.getArchivio(),1);
+                        TabsEdicola.STATE = 1;
+                        MenuBarTooltip.this.tabsEdicola.setContent(tabsEdicola.getArchivio(), new Rivista(), TabsEdicola.STATE);
                     }
                 });
                 break;
@@ -62,7 +67,19 @@ public class MenuBarTooltip extends Composite<Component> {
                 item.addClickListener(new ComponentEventListener<ClickEvent<MenuItem>>() {
                     @Override
                     public void onComponentEvent(ClickEvent<MenuItem> event) {
-
+                        if(TabsEdicola.STATE == 2) {
+                            if (Objects.isNull(rivista)) {
+                                DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Selezionare una riga della tabella");
+                                dialogGestioneEdicola.open();
+                            } else {
+                                TabsEdicola.STATE = 1;
+                                MenuBarTooltip.this.tabsEdicola.setContent(tabsEdicola.getArchivio(), rivista, TabsEdicola.STATE);
+                            }
+                        }
+                        else if(TabsEdicola.STATE == 1) {
+                            rivista = tabsEdicola.getRivistaService().findAll().get(0);
+                            MenuBarTooltip.this.tabsEdicola.setContent(tabsEdicola.getArchivio(), rivista, TabsEdicola.STATE);
+                        }
                     }
                 });
                 break;
@@ -71,7 +88,38 @@ public class MenuBarTooltip extends Composite<Component> {
                 item.addClickListener(new ComponentEventListener<ClickEvent<MenuItem>>() {
                     @Override
                     public void onComponentEvent(ClickEvent<MenuItem> event) {
-
+                        if(TabsEdicola.STATE == 2) {
+                            if (Objects.isNull(rivista)) {
+                                DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Selezionare una riga della tabella");
+                                dialogGestioneEdicola.open();
+                            } else {
+                                String descrizione = rivista.getDescrizione();
+                                tabsEdicola.getRivistaService().delete(rivista);
+                                DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Rivista " + descrizione + " eliminata");
+                                dialogGestioneEdicola.open();
+                                MenuBarTooltip.this.tabsEdicola.setContent(tabsEdicola.getArchivio(), rivista, TabsEdicola.STATE);
+                            }
+                        }
+                        else if(TabsEdicola.STATE == 1) {
+                            tabsEdicola.getAnagraficaRiviste().getBinderBarcode().validate();
+                            if(!tabsEdicola.getAnagraficaRiviste().getBinderBarcode().isValid()) {
+                                DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Per favore sistemare gli errori");
+                                dialogGestioneEdicola.open();
+                            }
+                            else {
+                                String barcode = tabsEdicola.getAnagraficaRiviste().getTextFieldBarCode().getValue();
+                                Rivista rivistaFound = tabsEdicola.getRivistaService().findByBarcode(barcode);
+                                if(!Objects.isNull(rivistaFound)) {
+                                    tabsEdicola.getRivistaService().delete(rivistaFound);
+                                    DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Rivista " + rivistaFound.getDescrizione() + " eliminata");
+                                    dialogGestioneEdicola.open();
+                                }
+                                else {
+                                    DialogGestioneEdicola dialogGestioneEdicola = new DialogGestioneEdicola("Messaggio", "Errore nel processo di eliminazione della rivista! La rivista non esiste");
+                                    dialogGestioneEdicola.open();
+                                }
+                            }
+                        }
                     }
                 });
                 break;
@@ -80,8 +128,8 @@ public class MenuBarTooltip extends Composite<Component> {
                 item.addClickListener(new ComponentEventListener<ClickEvent<MenuItem>>() {
                     @Override
                     public void onComponentEvent(ClickEvent<MenuItem> event) {
-
-                        MenuBarTooltip.this.tabsEdicola.setContent(tabsEdicola.getArchivio(),2);
+                        TabsEdicola.STATE = 2;
+                        MenuBarTooltip.this.tabsEdicola.setContent(tabsEdicola.getArchivio(), null, TabsEdicola.STATE);
                     }
                 });
                 break;
@@ -89,5 +137,9 @@ public class MenuBarTooltip extends Composite<Component> {
         }
 
         return item;
+    }
+
+    public void setRivista(Rivista rivista) {
+        this.rivista = rivista;
     }
 }
